@@ -32,9 +32,9 @@ object Listt {
   }
 
   // EX4 ///////////
-  def dropWhile[A](l: Listt[A], pred: A => Boolean): Listt[A] = l match {
+  def dropWhile[A](l: Listt[A]) (pred: A => Boolean): Listt[A] = l match {
     case Nil => Nil
-    case Cons(x, xs) if (pred(x)) => dropWhile(xs, pred)
+    case Cons(x, xs) if (pred(x)) => dropWhile (xs) (pred)
     case _ => l
   }
 
@@ -61,13 +61,63 @@ val x = Listt(1,2,3,4,5) match {
   case Cons(h, t) => h + Listt.sum(t)
   case _ => 101
 }
-//x: Int = 3, matches case #3
-println(x)
+// x: Int = 3, matches case #3
+//println(x)
 
 import Listt._
-println(tail(Listt('a', 'b')))
-println(drop(2, Listt(1,2,3)))
-println(drop(1, Nil))
-println(dropWhile(Listt(1,2,3,4,5), (x:Int) => x < 4))
-println(setHead(Listt(1,2,3), 4))
-println(init(Listt(1,2,3,4)))
+//println(tail(Listt('a', 'b')))
+//println(drop(2, Listt(1,2,3)))
+//println(drop(1, Nil))
+//println(dropWhile(Listt(1,2,3,4,5)) (x => x < 4))
+//println(setHead(Listt(1,2,3), 4))
+//println(init(Listt(1,2,3,4)))
+
+
+// EX7
+// No, it can't. foldRight does not expose, by means of a parameter, the functionality to stop the recursion.
+
+
+// EX8
+def foldRight[A,B](l: Listt[A], z: B)(f: (A, B) => B): B =
+  l match {
+    case Nil => z
+    case Cons(x, xs) => f(x, foldRight(xs, z)(f))
+  }
+
+val something = foldRight(Listt(1,2,4), Nil:Listt[Int]) (Cons(_,_))
+//println(something)
+// I really do not know at this time
+
+
+// EX9
+def length[A](l: Listt[A]): Int =
+  foldRight(l, 0) ((_:A, b:Int) => 1 + b)
+//println(length(Listt(1,2,3)))
+
+
+// EX10
+def foldLeft[A,B](l: Listt[A], z: B)(f: (B, A) => B): B = l match {
+  case Nil => z
+  case Cons(x, xs) => foldLeft(xs, f(z, x)) (f)
+}
+
+
+// EX11
+def sum(l: Listt[Int]): Int =
+  foldLeft(l, 0) (_+_)
+
+def product(l: Listt[Int]) : Int =
+  foldLeft(l, 1) (_*_)
+
+def lengthFL[A](l: Listt[A]) : Int =
+  foldLeft(l, 0) ((b:Int, _:A) => b + 1)
+
+//println(sum(Listt(1,2,3)))
+//println(product(Listt(1,2,3)))
+//println(lengthFL(Listt(1,2,3,4,5)))
+
+
+// EX12
+def reverse[A](l: Listt[A]) : Listt[A] =
+  foldLeft(l, Nil:Listt[A]) ((b, a) => Cons(a,b))
+//println(reverse(Listt(1,2,3)))
