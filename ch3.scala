@@ -124,9 +124,20 @@ def reverse[A](l: Listt[A]) : Listt[A] =
 
 
 // EX13
-//def foldLeftFR[A,B](l: Listt[A], z:B)(f: (B, A) => B): B =
-  //foldRight(l, Nil:Listt[A])()
+def foldLeftFR[A,B](l: Listt[A], z:B)(f: (B, A) => B): B =
+  foldRight(reverse(l), z)((a,b) => f(b,a))
 
+def foldRightFL[A,B](l: Listt[A], z:B)(f: (A, B) => B) : B =
+  foldLeft(reverse(l), z)((a, b) => f(b, a))
+
+def sum2(l: Listt[Int]) : Int = {
+  foldLeftFR(l, 0)(_ + _)
+}
+def sum3(l: Listt[Int]) : Int = {
+  foldRightFL(l, 0)(_ + _)
+}
+//println(sum2(Listt(1,2,3)))
+//println(sum3(Listt(1,2,3)))
 
 // EX14
 def append[A](l: Listt[A], el: A) : Listt[A] =
