@@ -121,3 +121,14 @@ def lengthFL[A](l: Listt[A]) : Int =
 def reverse[A](l: Listt[A]) : Listt[A] =
   foldLeft(l, Nil:Listt[A]) ((b, a) => Cons(a,b))
 //println(reverse(Listt(1,2,3)))
+
+
+// EX13
+//def foldLeftFR[A,B](l: Listt[A], z:B)(f: (B, A) => B): B =
+  //foldRight(l, Nil:Listt[A])()
+
+
+// EX14
+def append[A](l: Listt[A], el: A) : Listt[A] =
+  foldRight(l, Cons(el, Nil)) ((x: A, xs: Listt[A]) => Cons(x, xs))
+//println(append(Listt(1,2,4), 5))
