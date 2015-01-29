@@ -139,7 +139,50 @@ def sum3(l: Listt[Int]) : Int = {
 //println(sum2(Listt(1,2,3)))
 //println(sum3(Listt(1,2,3)))
 
+
 // EX14
 def append[A](l: Listt[A], el: A) : Listt[A] =
   foldRight(l, Cons(el, Nil)) ((x: A, xs: Listt[A]) => Cons(x, xs))
 //println(append(Listt(1,2,4), 5))
+
+def appendL[A](l1: Listt[A], l2: Listt[A]) : Listt[A] =
+  foldRight(l1, l2)(Cons(_,_))
+//println(appendL(Listt(1,2,4), Listt(5)))
+
+
+// EX15
+def concat[A](l: Listt[Listt[A]]) : Listt[A] = {
+  def go(_l: Listt[Listt[A]], out: Listt[A]) : Listt[A] = {
+    def aux_go(__l: Listt[A], _out: Listt[A]) : Listt[A] =
+      __l match {
+        case Nil => _out
+        case Cons(x, xs) => aux_go(xs, Cons(x, _out))
+      }
+
+    _l match {
+      case Nil => out
+      case Cons(x, xs) => go(xs, aux_go(x, out))
+    }
+  }
+  reverse(go(l, Nil))
+}
+//println(concat(Listt(Listt(1,2), Listt(3,4))))
+
+def concat2[A](l: Listt[Listt[A]]) : Listt[A] = {
+  foldRight(l, Nil:Listt[A])(appendL)
+}
+//println(concat2(Listt(Listt(1,2), Listt(3,4))))
+
+
+// EX16
+def add1(l: Listt[Int]) : Listt[Int] =
+  foldRight(l, Nil:Listt[Int])((a,b) => Cons(1+a,b))
+
+//val l = Listt(1,2,3)
+//println(l, add1(l), l)
+
+
+// EX17
+def str(l: Listt[Double]) : Listt[String] =
+  foldRight(l, Nil:Listt[String])((a,b) => Cons(a.toString,b))
+//println(str(Listt(1,2,3)))
