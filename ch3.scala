@@ -186,3 +186,44 @@ def add1(l: Listt[Int]) : Listt[Int] =
 def str(l: Listt[Double]) : Listt[String] =
   foldRight(l, Nil:Listt[String])((a,b) => Cons(a.toString,b))
 //println(str(Listt(1,2,3)))
+
+
+// EX18
+def map[A,B](as: Listt[A])(f:A => B) : Listt[B] =
+  foldRight(as, Nil:Listt[B])((x,xs) => Cons(f(x), xs))
+//println(map(Listt(1,2,3)) ((a:Int) => a+1))
+
+
+// EX19
+def filter[A](as: Listt[A])(f:A => Boolean): Listt[A] = as match {
+  case Nil => Nil
+  case Cons(x, xs) if f(x) => Cons(x, filter(xs)(f))
+  case Cons(_, xs) => filter(xs)(f)
+}
+def removeOdds(l: Listt[Int]) =
+  filter(l)((a:Int) => a % 2 == 0)
+//println(removeOdds(Listt(1,2,3,4,5)))
+
+
+// EX20
+def flatMap[A,B](as: Listt[A])(f:A => Listt[B]) : Listt[B] = as match {
+  case Nil => Nil
+  case Cons(x, xs) => appendL(f(x),flatMap(xs)(f))
+}
+//println(flatMap(Listt(1,2,3))(i => Listt(i,i)))
+
+
+// EX21
+def filter2[A](as: Listt[A])(f: A => Boolean) : Listt[A] =
+  flatMap(as) ((a:A) => if (f(a)) Cons(a, Nil) else Nil)
+//println(filter2(Listt(1,2,3,4)) (a => a % 2 == 0))
+
+
+// EX22
+def listAdd(l1: Listt[Int])(l2: Listt[Int]) : Listt[Int] = (l1, l2) match {
+  case (Nil, Nil) => Nil
+  case (Nil, Cons(x, xs)) => Cons(x, listAdd(Nil) (xs))
+  case (l, Nil) => listAdd(Nil) (l)
+  case (Cons(x1, xs1), Cons(x2, xs2)) => Cons(x1 + x2, listAdd(xs1) (xs2))
+}
+//println(listAdd(Listt(1,2,3,4)) (Listt(1,2,3)))
