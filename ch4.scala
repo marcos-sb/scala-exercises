@@ -19,6 +19,8 @@ sealed trait Option[+A] {
 
   def filter(f: A => Boolean): Option[A] =
     flatMap(a => if(f(a)) Some(a) else None)
+
+  def lift[A,B](f: A => B): Option[A] => Option[B] = _ map f
 }
 case class Some[+A](get: A) extends Option[A]
 case object None extends Option[Nothing]
@@ -26,6 +28,8 @@ case object None extends Option[Nothing]
 def mean(xs: Seq[Double]): Option[Double] =
   if(xs.isEmpty) None
   else Some(xs.sum / xs.length)
+//println(mean(Seq(1,2,3)))
 
 def variance(xs: Seq[Double]): Option[Double] =
-  mean(mean(xs) - xs.head)
+  mean(xs) flatMap (m => mean(xs.map(x => math.pow(x - m, 2))))
+//println(variance(Seq(1,2,3)))
