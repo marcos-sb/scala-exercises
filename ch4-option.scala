@@ -1,5 +1,5 @@
 
-import scala.{Option => _, Either => _, _}
+import scala.{Option => _, _}
 
 sealed trait Option[+A] {
   def map[B](f: A => B): Option[B] = this match {
@@ -72,5 +72,5 @@ def traverse[A,B](a: List[A])(f: A => Option[B]): Option[List[B]] = a match {
 
 def sequence2[A](a: List[Option[A]]): Option[List[A]] =
   traverse(a)(x => x)
-println(sequence(List(Some(1), Some(2))))
-println(sequence(List(Some(1), Some(2), None)))
+//println(sequence(List(Some(1), Some(2))))
+//println(sequence(List(Some(1), Some(2), None)))
