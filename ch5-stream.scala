@@ -36,12 +36,42 @@ sealed trait Stream[+A] {
     case Empty => Empty
   }
 
+  def exists(p: A => Boolean): Boolean = this match {
+    case Cons(h, t) => p(h()) || t().exists(p)
+    case _ => false
+  }
+
+  def foldRight[B](z: => B)(f: (A, => B) => B): B =
+    this match {
+      case Cons(h, t) => f(h(), t().foldRight(z)(f))
+      case _ => z
+    }
+
+  def exists2(p: A => Boolean): Boolean =
+    foldRight(false)((a, b) => p(a) || b)
+
+  // EX4
+  def forAll(p: A => Boolean): Boolean = this match {
+    case Cons(h, t) => p(h()) && t().forAll(p)
+    case _ => true
+  }
+
+  def forAll2(p: A => Boolean): Boolean =
+    foldRight(true)((a, b) => p(a) && b)
+
+  // EX5
+  def takeWhile2(p: A => Boolean): Stream[A] =
+    foldRight(empty[A])((a,b) => if (p(a)) cons(a, b) else empty)
+
 }
 
 //println(Stream(1,2,3).toList)
 //println(Stream(1,2,3).take(2).toList)
 //println(Stream(1,2,3,4).drop(2).toList)
-println(Stream(1,2,3,4).takeWhile(_ < 3).toList)
+//println(Stream(1,2,3,4).takeWhile(_ < 3).toList)
+//println(Stream(1,2,3,4).forAll(_ < 5))
+//println(Stream(1,2,3,4).forAll2(_ < 5))
+//println(Stream(1,2,3,4).takeWhile2(_ < 3).toList)
 
 case object Empty extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
