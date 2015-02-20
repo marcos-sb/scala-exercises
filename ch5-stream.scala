@@ -63,6 +63,24 @@ sealed trait Stream[+A] {
   def takeWhile2(p: A => Boolean): Stream[A] =
     foldRight(empty[A])((a,b) => if (p(a)) cons(a, b) else empty)
 
+  // EX6
+  def headOption2: Option[A] =
+    foldRight(None: Option[A])((h,_) => Some(h))
+
+  // EX7
+  def map[B](f: A => B): Stream[B] =
+    foldRight(empty[B])((a,b) => cons(f(a), b))
+
+  def filter(p: A => Boolean): Stream[A] =
+    foldRight(empty[A])((a,b) =>
+      if(p(a)) cons(a, b)
+      else b)
+
+  def append[B>:A](s: => Stream[B]): Stream[B] =
+    foldRight(s)(cons(_,_))
+
+  def flatMap[B](f: A => Stream[B]): Stream[B] =
+    foldRight()
 }
 
 //println(Stream(1,2,3).toList)
@@ -72,6 +90,11 @@ sealed trait Stream[+A] {
 //println(Stream(1,2,3,4).forAll(_ < 5))
 //println(Stream(1,2,3,4).forAll2(_ < 5))
 //println(Stream(1,2,3,4).takeWhile2(_ < 3).toList)
+//println(Stream(1,2,3,4).headOption2)
+//println(Empty.headOption2)
+//println(Stream(1,2,3,4).map(_ + 1).toList)
+//println(Stream(1,2,3,4).filter(_ % 2 == 0).toList)
+//println(Stream(1,2,3,4).append(Stream(1,2,3)).toList)
 
 case object Empty extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
