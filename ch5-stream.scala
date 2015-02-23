@@ -80,7 +80,11 @@ sealed trait Stream[+A] {
     foldRight(s)(cons(_,_))
 
   def flatMap[B](f: A => Stream[B]): Stream[B] =
-    foldRight()
+    foldRight(empty[B])((a,b) => f(a) append b)
+
+  def find(p: A => Boolean): Option[A] =
+    filter(p).headOption
+
 }
 
 //println(Stream(1,2,3).toList)
@@ -112,4 +116,41 @@ object Stream {
   def apply[A](as: A*): Stream[A] =
     if(as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
 
+  // EX8
+  def constant[A](a: A): Stream[A] = {
+    lazy val ct:Stream[A] = Cons(() => a, () => ct)
+    ct
+  }
+
+  // EX9
+  def from(n: Int): Stream[Int] = {
+    var _n: Int = n
+    lazy val n_strm: Stream[Int] = Cons(
+      () => _n, () => {_n +=1; n_strm})
+    n_strm
+  }
+
+  def from2(n: Int): Stream[Int] =
+    cons(n, from(n+1))
+
+  // EX10
+  def fibs: Stream[Int] = {
+    def go(n: Int, n1: Int): Stream[Int] =
+      cons(n, go(n1, n+n1))
+    go(0,1)
+  }
+
+  // EX11
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
+    case Some((h, s)) => cons(h, unfold(s)(f))
+    case None => empty[A]
+  }
+
+  // EX12
+  def 
+
 }
+
+//println(constant(2).take(5).toList)
+//println(from(2).take(5).toList)
+//println(fibs.take(7).toList)
