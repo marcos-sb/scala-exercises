@@ -147,10 +147,32 @@ object Stream {
   }
 
   // EX12
-  def 
+  def fibs2: Stream[Int] =
+    unfold((0,1)) { case (f0, f1) => Some((f0,(f1,f0+f1))) }
 
+  //def from3(n: Int): Stream[Int] =
+  //  unfold(cons(n, empty[Int]))((s:Stream[Int]) => Some(n+1, s))
+
+  def from3(n: Int) =
+    unfold(n)(n => Some((n, n+1)))
+
+  //def constant2[A](a: A): Stream[A] =
+  //  unfold(cons(a, empty[A]))((s:Stream[A]) => Some(a, s))
+
+  def constant2[A](a: A) =
+    unfold(a)(_ => Some((a,a)))
+
+  //def ones2: Stream[Int] =
+  //  unfold(cons(1, empty[Int]))((s:Stream[Int]) => Some(1, s))
+
+  def ones2: Stream[Int] =
+    unfold(1)(_ => Some((1,1)))
 }
 
 //println(constant(2).take(5).toList)
 //println(from(2).take(5).toList)
 //println(fibs.take(7).toList)
+//println(fibs2.take(7).toList)
+//println(constant2(2).take(5).toList)
+//println(from3(2).take(5).toList)
+//println(ones2.take(5).toList)
