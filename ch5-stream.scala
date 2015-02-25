@@ -85,18 +85,62 @@ sealed trait Stream[+A] {
   def find(p: A => Boolean): Option[A] =
     filter(p).headOption
 
+  // EX13
+  def map2[B](f: A => B): Stream[B] =
+    unfold(this) {
+      case Cons(h, t) => Some((f(h()), t()))
+      case Empty => None
+    }
+
+  def take2(n: Int): Stream[A] =
+    unfold((this,n)) {
+      case (Cons(h, _), 1) => Some((h(), (empty[A], 0)))
+      case (Cons(h, t), n) if n > 1 => Some((h(), (t(), n-1)))
+      case _ => None
+    }
+
+  def takeWhile3(p: A => Boolean): Stream[A] =
+    unfold(this) {
+      case Cons(h, t) => if(p(h())) Some((h(), t()))
+                         else None
+      case _ => None
+    }
+
+  def zipWith[B,C](s2: Stream[B])(f: (A,B) => C): Stream[C] =
+    unfold((this, s2)) {
+      case (Empty, _) => None
+      case (_, Empty) => None
+      case (Cons(h1, t1), Cons(h2,t2)) => Some((f(h1(),h2()), (t1(),t2())))
+    }
+
+  def zipAll[B](s2: Stream[B]): Stream[(Option[A],Option[B])] =
+    unfold((this, s2)) {
+      case (Empty, Empty) => None
+      case (Empty, Cons(h2,t2)) => Some(((None,Some(h2())),(empty[A], t2())))
+      case (Cons(h1,t1), Empty) => Some(((Some(h1()), None),(t1(), empty[B])))
+      case (Cons(h1,t1), Cons(h2,t2)) =>
+        Some(((Some(h1()),Some(h2())),(t1(),t2())))
+    }
+
+  //def hasSubsequence(s2: Stream[A]): Boolean =
+
 }
 
+//println(Stream(1,2,3).zipAll(Stream(1)).toList)
+//println(Stream(1,2,4,4).zipWith(Stream(1,2,4,4))(_ + _).toList)
 //println(Stream(1,2,3).toList)
 //println(Stream(1,2,3).take(2).toList)
+//println(Stream(1,2,3).take2(2).toList)
 //println(Stream(1,2,3,4).drop(2).toList)
 //println(Stream(1,2,3,4).takeWhile(_ < 3).toList)
+//println(Stream(1,2,3,4).takeWhile3(_ <= 3).toList)
 //println(Stream(1,2,3,4).forAll(_ < 5))
 //println(Stream(1,2,3,4).forAll2(_ < 5))
 //println(Stream(1,2,3,4).takeWhile2(_ < 3).toList)
 //println(Stream(1,2,3,4).headOption2)
 //println(Empty.headOption2)
 //println(Stream(1,2,3,4).map(_ + 1).toList)
+//println(Stream(1,2,3,4).map2(_ + 1).toList)
 //println(Stream(1,2,3,4).filter(_ % 2 == 0).toList)
 //println(Stream(1,2,3,4).append(Stream(1,2,3)).toList)
 
