@@ -122,10 +122,33 @@ sealed trait Stream[+A] {
         Some(((Some(h1()),Some(h2())),(t1(),t2())))
     }
 
-  //def hasSubsequence(s2: Stream[A]): Boolean =
+  // EX14
+  def startsWith[A](s: Stream[A]): Boolean =
+    zipAll(s).takeWhile(!_._2.isEmpty) forAll {
+      case (h,h2) => h == h2
+    }
+
+  // EX15
+  def tails: Stream[Stream[A]] =
+    unfold(this) {
+      case Empty => None
+      case Cons(h,t) => Some((Cons(h,t), t()))
+    } append Stream(empty)
+
+  def hasSubsequence[A](s: Stream[A]): Boolean =
+    tails exists (_ startsWith s)
+
+  // EX16
+  def scanRight[B](z: B)(f: (A,B) => B): Stream[B] = {
+    this match {
+      case Empty => consz
+      case Cons(h,t) => t().scanRight(f(h(),z))(f)
+    }
+  }
 
 }
 
+println(Stream(1,2,3).tails.map(_.toList).toList)
 //println(Stream(1,2,3).zipAll(Stream(1)).toList)
 //println(Stream(1,2,4,4).zipWith(Stream(1,2,4,4))(_ + _).toList)
 //println(Stream(1,2,3).toList)
@@ -211,6 +234,7 @@ object Stream {
 
   def ones2: Stream[Int] =
     unfold(1)(_ => Some((1,1)))
+
 }
 
 //println(constant(2).take(5).toList)
