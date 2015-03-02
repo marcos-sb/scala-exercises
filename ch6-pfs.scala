@@ -30,26 +30,20 @@ case class SimpleRNG(seed: Long) extends RNG {
 
 }
 
+type Rand[+A] = RNG => (A, RNG)
+
 object SimpleRNG {
 
   //EX1
   def nonNegativeInt(rng: RNG): (Int, RNG) = {
-    val rndInt = rng.nextInt
-    if(rndInt._1 == Int.MinValue)
-      nonNegativeInt(rng)
-    else {
-      val mask = (1 << 31) - 1
-      (rndInt._1 & mask, rndInt._2)
-    }
+    val (i, r) = rng.nextInt
+    if(i < 0) (-(i + 1), r) else (i, r)
   }
 
   //EX2
   def double(rng: RNG): (Double, RNG) = {
     val rndInt = nonNegativeInt(rng)
-    if(rndInt._1 == 0)
-      double(rndInt._2)
-    else
-      (rndInt._1 / Int.MaxValue.toDouble, rndInt._2)
+    (rndInt._1 / Int.MaxValue.toDouble, rndInt._2)
   }
 
   //EX3
@@ -90,6 +84,44 @@ object SimpleRNG {
     }
     go(count, Nil, rng)
   }
+
+  val int: Rand[Int] = _.nextInt
+
+  def map[A,B](s: Rand[A])(f: A => B): Rand[B] =
+    rng => {
+      val (a, rng2) = s(rng)
+      (f(a), rng2)
+    }
+
+  //EX5
+  def double3: Rand[Double] = {
+    map(nonNegativeInt)(n => n / Int.MaxValue.toDouble)
+  }
+
+  //EX6
+  def map2[A,B,C](ra:Rand[A], rb:Rand[B])(f: (A,B) => C): Rand[C] = {
+    rng => {
+      val (a,rng2) = ra(rng)
+      val (b,rng3) = rb(rng2)
+      (f(a,b),rng3)
+    }
+  }
+
+  def both[A,B](ra:Rand[A], rb:Rand[B]): Rand[(A,B)] =
+    map2(ra,rb)((_,_))
+
+  def randIntDouble:Rand[(Int,Double)] =
+    both(int, double3)
+
+  def randDoubleInt: Rand[(Int, Double)] =
+    both(double3, int)
+
+  //EX7
+  //def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = fs match {
+  //  case Nil => Rand[Nil]
+  //  case (a,r)::t => a::hsequence(t)
+  //}
+
 }
 
 //println(SimpleRNG.ints(3)(SimpleRNG(28))._1)
