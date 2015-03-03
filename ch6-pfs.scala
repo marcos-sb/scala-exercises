@@ -94,18 +94,16 @@ object SimpleRNG {
     }
 
   //EX5
-  def double3: Rand[Double] = {
+  def double3: Rand[Double] =
     map(nonNegativeInt)(n => n / Int.MaxValue.toDouble)
-  }
 
   //EX6
-  def map2[A,B,C](ra:Rand[A], rb:Rand[B])(f: (A,B) => C): Rand[C] = {
+  def map2[A,B,C](ra:Rand[A], rb:Rand[B])(f: (A,B) => C): Rand[C] =
     rng => {
       val (a,rng2) = ra(rng)
       val (b,rng3) = rb(rng2)
       (f(a,b),rng3)
     }
-  }
 
   def both[A,B](ra:Rand[A], rb:Rand[B]): Rand[(A,B)] =
     map2(ra,rb)((_,_))
@@ -113,15 +111,14 @@ object SimpleRNG {
   def randIntDouble:Rand[(Int,Double)] =
     both(int, double3)
 
-  def randDoubleInt: Rand[(Int, Double)] =
+  def randDoubleInt: Rand[(Double, Int)] =
     both(double3, int)
 
-  //EX7
-  //def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = fs match {
-  //  case Nil => Rand[Nil]
-  //  case (a,r)::t => a::hsequence(t)
-  //}
+  def unit[A](a: A): Rand[A] = rng => (a, rng)
 
+  //EX7
+  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] =
+    fs.foldRight(unit(List[A]()))((rh,rt) => map2(rh,rt)(_::_))
 }
 
 //println(SimpleRNG.ints(3)(SimpleRNG(28))._1)
